@@ -14,7 +14,7 @@ struct BookWorm_100SUI_11App: App {
     
     var body: some Scene {
         WindowGroup {
-            AddBookView()
+            ContentView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
         }
     }

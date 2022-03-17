@@ -10,6 +10,7 @@ import SwiftUI
 struct AddBookView: View {
     
     @Environment(\.managedObjectContext) var moc
+    @Environment(\.dismiss) var dismiss
     
     let genres = ["Fantasy", "Horror", "Kids", "Mystery", "Poetry", "Romance", "Thriller"]
     
@@ -45,11 +46,21 @@ struct AddBookView: View {
                 
                 Section {
                     Button("Save") {
-                        // ADD ENTITY
+                        let newBook = Book(context: moc)
+                        newBook.id = UUID()
+                        newBook.title = title
+                        newBook.author = author
+                        newBook.rating = Int16(rating)
+                        newBook.genre = genre
+                        newBook.review = review
+                        
+                        try? moc.save()
+                        dismiss()
                     }
                 }
             }
             .navigationTitle("Add Book")
+            
         }
     }
 }
