@@ -11,7 +11,10 @@ struct ContentView: View {
     
     @Environment(\.managedObjectContext) var moc
     
-    @FetchRequest(sortDescriptors: []) var books: FetchedResults<Book>
+    @FetchRequest(sortDescriptors: [
+        SortDescriptor(\.title),
+        SortDescriptor(\.author)
+    ]) var books: FetchedResults<Book>
     
     @State private var showingAddScreen = false
     
@@ -20,7 +23,8 @@ struct ContentView: View {
             List {
                 ForEach(books) { book in
                     NavigationLink {
-                        DetailView(book: book)
+                        DetailView(book: book
+                        )
                     } label : {
                         HStack {
                             EmojiRatingView(rating: book.rating)
@@ -29,6 +33,7 @@ struct ContentView: View {
                             VStack(alignment: .leading) {
                                 Text(book.title ?? "Unknown Title")
                                     .font(.headline)
+                                    .foregroundColor(book.rating == 1 ? .red : .primary)
                                 
                                 Text(book.author ?? "Unknown Author")
                                     .foregroundColor(.secondary)
@@ -36,6 +41,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                .onDelete(perform: deleteBooks)
             }
             .listStyle(.plain)
             .navigationTitle("Bookworm")
@@ -47,12 +53,26 @@ struct ContentView: View {
                         Label("Add Book", systemImage: "plus")
                     }
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
             }
             .sheet(isPresented: $showingAddScreen) {
                 AddBookView()
             }
         }
     }
+    
+    func deleteBooks(at offsets: IndexSet) {
+        for offset in offsets {
+            let book = books[offset]
+            
+            moc.delete(book)
+        }
+        
+        try? moc.save()
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
